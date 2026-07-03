@@ -1,0 +1,175 @@
+<div class="acc-page">
+
+  @if (error()) { <div class="error-banner">{{ error() }}</div> }
+
+  @if (loading()) {
+    <div class="loading-center"><div class="spinner"></div></div>
+  } @else {
+
+    <!-- ── Total net worth ──────────────────────── -->
+    <div class="net-card">
+      <p class="net-label">Total balance</p>
+      <p class="net-amount" [class.negative]="totalBalance() < 0">{{ fmt(totalBalance()) }}</p>
+    </div>
+
+    <!-- ── Account list ─────────────────────────── -->
+    @if (accounts().length === 0) {
+      <div class="empty-state">
+        <span class="icon">🏦</span>
+        <p>No accounts yet</p>
+      </div>
+    } @else {
+      <section class="section">
+        <h2 class="section-title">My accounts</h2>
+        <div class="acc-list">
+          @for (a of accounts(); track a.id) {
+            <div class="acc-card card">
+              <div class="acc-left">
+                <span class="acc-icon">{{ TYPE_ICONS[a.type] }}</span>
+                <div>
+                  <p class="acc-name">{{ a.name }}</p>
+                  <p class="acc-meta">{{ a.type | titlecase }} · {{ a.currency }}</p>
+                </div>
+              </div>
+              <div class="acc-right">
+                <p class="acc-balance" [class.negative]="a.balance < 0">{{ fmt(a.balance) }}</p>
+                <div class="acc-actions">
+                  <button class="icon-btn" (click)="openEdit(a)" title="Edit">✏️</button>
+                  <button class="icon-btn danger" (click)="deleteAccount(a)" title="Delete">🗑️</button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ── Recent transfers ──────────────────────── -->
+    @if (transfers().length > 0) {
+      <section class="section">
+        <h2 class="section-title">Recent transfers</h2>
+        <div class="card tr-list">
+          @for (t of transfers(); track t.id; let last = $last) {
+            <div class="tr-row" [class.no-border]="last">
+              <span class="tr-icon">↔️</span>
+              <div class="tr-info">
+                <p class="tr-name">{{ t.source_account_name }} → {{ t.destination_account_name }}</p>
+                <p class="tr-sub">{{ fmtDate(t.date) }}{{ t.note ? ' · ' + t.note : '' }}</p>
+              </div>
+              <div class="tr-right">
+                <p class="tr-amount">{{ fmt(t.amount) }}</p>
+                <button class="icon-btn danger" (click)="deleteTransfer(t)">✕</button>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+
+</div>
+
+<!-- ── FABs ───────────────────────────────────────── -->
+<div class="fab-group">
+  <button class="fab fab-transfer" (click)="openTransfer()" title="Transfer">↔</button>
+  <button class="fab fab-add"      (click)="openAdd()"      title="Add account">+</button>
+</div>
+
+<!-- ── Account sheet ──────────────────────────────── -->
+@if (sheet() === 'account') {
+  <div class="overlay" (click)="closeSheet()"></div>
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="sheet-title">{{ editTarget() ? 'Edit account' : 'New account' }}</h3>
+
+    <form [formGroup]="accountForm" (ngSubmit)="saveAccount()">
+      <div class="sheet-fields">
+
+        <div class="form-group">
+          <label class="form-label">Account name *</label>
+          <input class="form-input" type="text" formControlName="name" placeholder="e.g. Family Wallet">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <select class="form-input form-select" formControlName="type">
+            @for (t of TYPES; track t) {
+              <option [value]="t">{{ TYPE_ICONS[t] }} {{ t | titlecase }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Currency *</label>
+          <select class="form-input form-select" formControlName="currency">
+            @for (c of CURRENCIES; track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
+
+      </div>
+
+      <button class="btn btn-primary btn-full" type="submit" [disabled]="accountForm.invalid || saving()">
+        @if (saving()) { <span class="spinner"></span> }
+        {{ editTarget() ? 'Save changes' : 'Create account' }}
+      </button>
+    </form>
+  </div>
+}
+
+<!-- ── Transfer sheet ─────────────────────────────── -->
+@if (sheet() === 'transfer') {
+  <div class="overlay" (click)="closeSheet()"></div>
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="sheet-title">Transfer between accounts</h3>
+
+    <form [formGroup]="transferForm" (ngSubmit)="saveTransfer()">
+      <div class="sheet-fields">
+
+        <div class="form-group">
+          <label class="form-label">From *</label>
+          <select class="form-input form-select" formControlName="source_account_id">
+            <option [ngValue]="null" disabled>Select source</option>
+            @for (a of accounts(); track a.id) {
+              <option [ngValue]="a.id">{{ TYPE_ICONS[a.type] }} {{ a.name }} ({{ fmt(a.balance) }} {{ a.currency }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">To *</label>
+          <select class="form-input form-select" formControlName="destination_account_id">
+            <option [ngValue]="null" disabled>Select destination</option>
+            @for (a of otherAccounts(transferForm.get('source_account_id')!.value); track a.id) {
+              <option [ngValue]="a.id">{{ TYPE_ICONS[a.type] }} {{ a.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount *</label>
+          <input class="form-input amount-input" type="number" formControlName="amount"
+            placeholder="0" inputmode="decimal" min="0.01" step="any">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input class="form-input" type="date" formControlName="date">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Note</label>
+          <input class="form-input" type="text" formControlName="note" placeholder="Optional…">
+        </div>
+
+      </div>
+
+      <button class="btn btn-primary btn-full" type="submit" [disabled]="transferForm.invalid || saving()">
+        @if (saving()) { <span class="spinner"></span> }
+        Transfer
+      </button>
+    </form>
+  </div>
+}

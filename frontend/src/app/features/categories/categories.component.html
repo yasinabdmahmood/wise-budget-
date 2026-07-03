@@ -1,0 +1,139 @@
+<div class="page">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab() === 'expense'" (click)="setTab('expense')">
+      💸 Expense
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'income'" (click)="setTab('income')">
+      💰 Income
+    </button>
+  </div>
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="error-bar">{{ error() }}</div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  }
+
+  <!-- Tree -->
+  @if (!loading()) {
+    <div class="tree-list">
+      @if (activeTree().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">🏷️</span>
+          <p>No {{ activeTab() }} categories yet</p>
+        </div>
+      }
+
+      @for (parent of activeTree(); track parent.id) {
+        <!-- Parent row -->
+        <div class="cat-row parent-row" (click)="openEdit(parent)">
+          <span class="cat-logo">{{ parent.logo }}</span>
+          <span class="cat-name">{{ parent.name }}</span>
+          @if (isSystem(parent)) {
+            <span class="badge-sys">system</span>
+          }
+          @if (!isSystem(parent)) {
+            <button class="icon-btn del-btn" (click)="$event.stopPropagation(); delete(parent)">🗑️</button>
+          }
+        </div>
+
+        <!-- Children -->
+        @for (child of parent.children; track child.id) {
+          <div class="cat-row child-row" (click)="openEdit(child)">
+            <span class="child-indent">└</span>
+            <span class="cat-logo">{{ child.logo }}</span>
+            <span class="cat-name">{{ child.name }}</span>
+            @if (isSystem(child)) {
+              <span class="badge-sys">system</span>
+            }
+            @if (!isSystem(child)) {
+              <button class="icon-btn del-btn" (click)="$event.stopPropagation(); delete(child)">🗑️</button>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- FAB -->
+  <button class="fab" (click)="openAdd()" aria-label="Add category">＋</button>
+</div>
+
+<!-- Bottom Sheet Overlay -->
+@if (showSheet()) {
+  <div class="overlay" (click)="closeSheet()"></div>
+  <div class="bottom-sheet">
+
+    <div class="sheet-handle"></div>
+    <h3 class="sheet-title">{{ editTarget() ? 'Edit Category' : 'New Category' }}</h3>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- Emoji picker trigger -->
+      <div class="emoji-row">
+        <button type="button" class="emoji-preview" (click)="showEmojiPicker.set(!showEmojiPicker())">
+          {{ form.get('logo')?.value }}
+        </button>
+        <span class="emoji-hint">Tap to change icon</span>
+      </div>
+
+      <!-- Emoji grid -->
+      @if (showEmojiPicker()) {
+        <div class="emoji-grid">
+          @for (e of EMOJIS; track e) {
+            <button type="button" class="emoji-cell"
+              [class.selected]="form.get('logo')?.value === e"
+              (click)="pickEmoji(e)">{{ e }}</button>
+          }
+        </div>
+      }
+
+      <!-- Name -->
+      <div class="field">
+        <label class="field-label">Name *</label>
+        <input class="form-input" formControlName="name" placeholder="e.g. Groceries" autocomplete="off" />
+      </div>
+
+      <!-- Type (only for new categories) -->
+      @if (!editTarget()) {
+        <div class="field">
+          <label class="field-label">Type</label>
+          <div class="seg-ctrl">
+            <button type="button" class="seg-btn"
+              [class.active]="form.get('type')?.value === 'expense'"
+              (click)="form.patchValue({ type: 'expense', parent_id: null })">Expense</button>
+            <button type="button" class="seg-btn"
+              [class.active]="form.get('type')?.value === 'income'"
+              (click)="form.patchValue({ type: 'income', parent_id: null })">Income</button>
+          </div>
+        </div>
+      }
+
+      <!-- Parent -->
+      <div class="field">
+        <label class="field-label">Parent category (optional)</label>
+        <select class="form-input" formControlName="parent_id">
+          <option [ngValue]="null">— None (top-level) —</option>
+          @for (p of parentOptions(); track p.id) {
+            <option [ngValue]="p.id">{{ p.logo }} {{ p.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Actions -->
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-ghost" (click)="closeSheet()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+          @if (saving()) { <span class="spinner-sm"></span> }
+          @else { {{ editTarget() ? 'Save' : 'Add' }} }
+        </button>
+      </div>
+    </form>
+  </div>
+}

@@ -1,0 +1,103 @@
+<div class="page">
+
+  <!-- Profile card -->
+  <div class="section-card">
+    <div class="avatar-row">
+      <div class="avatar">{{ (user()?.username || 'U')[0].toUpperCase() }}</div>
+      <div class="user-info">
+        <p class="user-name">{{ user()?.username }}</p>
+        <p class="user-email">{{ user()?.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update username -->
+  <div class="section-card">
+    <h3 class="section-title">Update Username</h3>
+
+    @if (profileMsg()) { <div class="success-bar">✅ {{ profileMsg() }}</div> }
+    @if (profileErr()) { <div class="error-bar">{{ profileErr() }}</div> }
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="field">
+        <label class="field-label">Username</label>
+        <input class="form-input" formControlName="username" placeholder="Your name" autocomplete="username" />
+        @if (profileForm.get('username')?.invalid && profileForm.get('username')?.touched) {
+          <span class="field-err">At least 2 characters</span>
+        }
+      </div>
+      <button type="submit" class="btn btn-primary full-btn" [disabled]="profileForm.invalid || savingProfile()">
+        @if (savingProfile()) { <span class="spinner-sm"></span> }
+        @else { Save Username }
+      </button>
+    </form>
+  </div>
+
+  <!-- Change password -->
+  <div class="section-card">
+    <h3 class="section-title">Change Password</h3>
+
+    @if (passwordMsg()) { <div class="success-bar">✅ {{ passwordMsg() }}</div> }
+    @if (passwordErr()) { <div class="error-bar">{{ passwordErr() }}</div> }
+
+    <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+      <div class="field">
+        <label class="field-label">Current Password</label>
+        <input class="form-input" type="password" formControlName="currentPassword" autocomplete="current-password" />
+      </div>
+      <div class="field">
+        <label class="field-label">New Password</label>
+        <input class="form-input" type="password" formControlName="newPassword" autocomplete="new-password"
+          placeholder="Min 8 characters" />
+        @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+          <span class="field-err">At least 8 characters</span>
+        }
+      </div>
+      <div class="field">
+        <label class="field-label">Confirm New Password</label>
+        <input class="form-input" type="password" formControlName="confirmPassword" autocomplete="new-password" />
+        @if (passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched) {
+          <span class="field-err">Passwords do not match</span>
+        }
+      </div>
+      <button type="submit" class="btn btn-primary full-btn"
+        [disabled]="passwordForm.invalid || savingPassword()">
+        @if (savingPassword()) { <span class="spinner-sm"></span> }
+        @else { Change Password }
+      </button>
+    </form>
+  </div>
+
+  <!-- App info -->
+  <div class="section-card info-card">
+    <div class="info-row">
+      <span class="info-label">App version</span>
+      <span class="info-val">v{{ APP_VERSION }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Built with</span>
+      <span class="info-val">Angular · Node.js · SQLite</span>
+    </div>
+  </div>
+
+  <!-- Logout -->
+  <div class="section-card danger-card">
+    <button class="btn btn-danger full-btn" (click)="confirmLogout()">🚪 Sign Out</button>
+  </div>
+
+  <!-- bottom padding -->
+  <div style="height: calc(env(safe-area-inset-bottom) + 8px)"></div>
+</div>
+
+<!-- Logout confirm dialog -->
+@if (showConfirm()) {
+  <div class="overlay" (click)="cancelLogout()"></div>
+  <div class="confirm-dialog">
+    <p class="confirm-title">Sign out?</p>
+    <p class="confirm-body">You'll need to log in again to access your data.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" (click)="cancelLogout()">Cancel</button>
+      <button class="btn btn-danger" (click)="logout()">Sign Out</button>
+    </div>
+  </div>
+}

@@ -1,0 +1,13 @@
+{
+  "name": "wise-budget",
+  "version": "1.0.0",
+  "description": "Wise Budget — personal finance app",
+  "private": true,
+  "scripts": {
+    "install:all":  "npm install --prefix backend && npm install --prefix frontend",
+    "dev:api":      "npm run dev   --prefix backend",
+    "dev:ui":       "npm run start --prefix frontend",
+    "build":        "npm run build:prod --prefix frontend",
+    "start":        "NODE_ENV=production node backend/src/app.js"
+  }
+}

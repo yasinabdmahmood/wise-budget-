@@ -1,0 +1,56 @@
+<div class="auth-page">
+  <div class="auth-brand">
+    <div class="auth-logo">💰</div>
+    <h1 class="auth-title">Wise Budget</h1>
+    <p class="auth-subtitle">Track your family finances</p>
+  </div>
+
+  <form class="auth-card card" [formGroup]="form" (ngSubmit)="submit()">
+    <h2 class="form-heading">Welcome back</h2>
+
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input
+        class="form-input"
+        [class.error]="email.invalid && email.touched"
+        type="email"
+        formControlName="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        inputmode="email">
+      @if (email.invalid && email.touched) {
+        <span class="form-error">Enter a valid email address</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input
+        class="form-input"
+        [class.error]="password.invalid && password.touched"
+        type="password"
+        formControlName="password"
+        placeholder="••••••••"
+        autocomplete="current-password">
+      @if (password.invalid && password.touched) {
+        <span class="form-error">Password must be at least 6 characters</span>
+      }
+    </div>
+
+    @if (error()) {
+      <div class="auth-error">{{ error() }}</div>
+    }
+
+    <button class="btn btn-primary btn-full" type="submit" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner"></span> Signing in…
+      } @else {
+        Sign in
+      }
+    </button>
+
+    <p class="auth-footer">
+      No account? <a routerLink="/register">Create one</a>
+    </p>
+  </form>
+</div>

@@ -1,0 +1,129 @@
+<div class="dashboard">
+
+  <!-- ── Greeting ───────────────────────────────── -->
+  <div class="greeting">
+    <p class="greeting-hi">Hello, {{ username }} 👋</p>
+    <p class="greeting-sub">Here's your financial overview</p>
+  </div>
+
+  <!-- ── Month selector ─────────────────────────── -->
+  <div class="month-picker">
+    <button class="month-btn" (click)="prevMonth()">‹</button>
+    <span class="month-label">{{ monthLabel() }}</span>
+    <button class="month-btn" (click)="nextMonth()">›</button>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-center"><div class="spinner"></div></div>
+  }
+
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+
+  @if (summary() && !loading()) {
+    <!-- ── Net balance hero card ─────────────────── -->
+    <div class="hero-card" [class.positive]="summary()!.totals.net >= 0" [class.negative]="summary()!.totals.net < 0">
+      <p class="hero-label">Net balance this month</p>
+      <p class="hero-amount">
+        {{ summary()!.totals.net >= 0 ? '+' : '' }}{{ fmt(summary()!.totals.net) }}
+      </p>
+    </div>
+
+    <!-- ── Income / Expense row ──────────────────── -->
+    <div class="stat-row">
+      <div class="stat-card card">
+        <div class="stat-icon income-icon">↑</div>
+        <div>
+          <p class="stat-label">Income</p>
+          <p class="stat-value income">{{ fmt(summary()!.totals.income) }}</p>
+        </div>
+      </div>
+      <div class="stat-card card">
+        <div class="stat-icon expense-icon">↓</div>
+        <div>
+          <p class="stat-label">Expense</p>
+          <p class="stat-value expense">{{ fmt(summary()!.totals.expense) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Account balances ──────────────────────── -->
+    @if (summary()!.account_balances.length > 0) {
+      <section class="section">
+        <h2 class="section-title">Accounts</h2>
+        <div class="accounts-list">
+          @for (acc of summary()!.account_balances; track acc.id) {
+            <div class="acc-item card">
+              <div class="acc-meta">
+                <span class="acc-icon">{{ acc.type === 'cash' ? '💵' : acc.type === 'savings' ? '🏦' : acc.type === 'credit' ? '💳' : '🏧' }}</span>
+                <div>
+                  <p class="acc-name">{{ acc.name }}</p>
+                  <p class="acc-type">{{ acc.type }} · {{ acc.currency }}</p>
+                </div>
+              </div>
+              <p class="acc-balance" [class.negative]="acc.balance < 0">
+                {{ fmt(acc.balance) }}
+              </p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ── Spending by category ──────────────────── -->
+    @if (expenseBars().length > 0) {
+      <section class="section">
+        <h2 class="section-title">Top expenses</h2>
+        <div class="card cat-list">
+          @for (cat of expenseBars(); track cat.category_id) {
+            <div class="cat-row">
+              <span class="cat-logo">{{ cat.category_logo }}</span>
+              <div class="cat-info">
+                <div class="cat-header">
+                  <span class="cat-name">{{ cat.category_name }}</span>
+                  <span class="cat-amount expense">{{ fmt(cat.total) }}</span>
+                </div>
+                <div class="cat-bar-track">
+                  <div class="cat-bar-fill" [style.width.%]="cat.pct"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    } @else {
+      <div class="empty-state">
+        <span class="icon">📊</span>
+        <p>No expenses recorded this month</p>
+        <a class="btn btn-primary btn-sm" routerLink="/transactions">Add one</a>
+      </div>
+    }
+
+    <!-- ── Recent transactions ───────────────────── -->
+    @if (summary()!.recent_transactions.length > 0) {
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Recent</h2>
+          <a class="see-all" routerLink="/transactions">See all</a>
+        </div>
+        <div class="card txn-list">
+          @for (t of summary()!.recent_transactions; track t.id) {
+            <div class="txn-row">
+              <span class="txn-logo">{{ t.category_logo || '💸' }}</span>
+              <div class="txn-info">
+                <p class="txn-name">{{ t.category_name || 'Uncategorised' }}</p>
+                <p class="txn-sub">{{ t.account_name }} · {{ fmtDate(t.date) }}</p>
+              </div>
+              <p class="txn-amount" [class.income]="t.type==='income'" [class.expense]="t.type==='expense'">
+                {{ t.type === 'income' ? '+' : '-' }}{{ fmt(t.amount) }}
+              </p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+
+</div>

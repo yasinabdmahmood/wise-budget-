@@ -1,0 +1,35 @@
+<div class="app-shell">
+
+  <!-- ── Top header ───────────────────────────── -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <span class="top-bar-logo">💰</span>
+      <h1 class="top-bar-title">{{ pageTitle() }}</h1>
+      <div class="top-bar-actions">
+        <div class="avatar" [title]="username">
+          {{ username.charAt(0).toUpperCase() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Page content ─────────────────────────── -->
+  <main class="page-content">
+    <router-outlet />
+  </main>
+
+  <!-- ── Bottom navigation ────────────────────── -->
+  <nav class="bottom-nav">
+    @for (item of navItems; track item.path) {
+      <a
+        class="nav-item"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+</div>

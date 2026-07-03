@@ -1,0 +1,124 @@
+<div class="txn-page">
+
+  <!-- ── Filter tabs ────────────────────────────── -->
+  <div class="filter-tabs">
+    <button class="filter-tab" [class.active]="filterType()==='all'"     (click)="setFilter('all')">All</button>
+    <button class="filter-tab" [class.active]="filterType()==='income'"  (click)="setFilter('income')">Income</button>
+    <button class="filter-tab" [class.active]="filterType()==='expense'" (click)="setFilter('expense')">Expense</button>
+  </div>
+
+  @if (error()) { <div class="error-banner">{{ error() }}</div> }
+
+  <!-- ── Transaction list ───────────────────────── -->
+  @if (loading() && transactions().length === 0) {
+    <div class="loading-center"><div class="spinner"></div></div>
+  } @else if (transactions().length === 0) {
+    <div class="empty-state">
+      <span class="icon">💸</span>
+      <p>No transactions yet</p>
+    </div>
+  } @else {
+    @for (group of groupedDates(); track group.date) {
+      <div class="date-group">
+        <p class="date-label">{{ group.label }}</p>
+        <div class="card txn-card">
+          @for (t of group.items; track t.id; let last = $last) {
+            <div class="txn-row" [class.no-border]="last">
+              <span class="txn-logo">{{ t.category_logo || '💸' }}</span>
+              <div class="txn-body" (click)="openEdit(t)">
+                <p class="txn-name">{{ t.category_name || 'Uncategorised' }}</p>
+                <p class="txn-sub">{{ t.account_name }}{{ t.note ? ' · ' + t.note : '' }}</p>
+              </div>
+              <div class="txn-right">
+                <p class="txn-amount" [class.income]="t.type==='income'" [class.expense]="t.type==='expense'">
+                  {{ t.type === 'income' ? '+' : '-' }}{{ fmt(t.amount) }}
+                </p>
+                <button class="del-btn" (click)="delete(t)">✕</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (hasMore()) {
+      <button class="btn btn-ghost btn-full load-more" (click)="loadMore()" [disabled]="loading()">
+        @if (loading()) { <span class="spinner"></span> } @else { Load more }
+      </button>
+    }
+  }
+
+</div>
+
+<!-- ── FAB ────────────────────────────────────────── -->
+<div class="fab-group">
+  <button class="fab fab-income"  (click)="openAdd('income')"  title="Add income">+</button>
+  <button class="fab fab-expense" (click)="openAdd('expense')" title="Add expense">−</button>
+</div>
+
+<!-- ── Bottom sheet ───────────────────────────────── -->
+@if (showSheet()) {
+  <div class="overlay" (click)="closeSheet()"></div>
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+
+    <!-- Type toggle -->
+    <div class="type-toggle">
+      <button [class.active-income]="sheetType()==='income'"   (click)="sheetType.set('income')">↑ Income</button>
+      <button [class.active-expense]="sheetType()==='expense'" (click)="sheetType.set('expense')">↓ Expense</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="sheet-fields">
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label">Amount *</label>
+          <input class="form-input amount-input" [class.error]="form.get('amount')!.invalid && form.get('amount')!.touched"
+            type="number" formControlName="amount" placeholder="0" inputmode="decimal" min="0.01" step="any">
+        </div>
+
+        <!-- Account -->
+        <div class="form-group">
+          <label class="form-label">Account *</label>
+          <select class="form-input form-select" formControlName="account_id">
+            <option [ngValue]="null" disabled>Select account</option>
+            @for (a of accounts(); track a.id) {
+              <option [ngValue]="a.id">{{ a.name }} ({{ a.currency }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-input form-select" formControlName="category_id">
+            <option [ngValue]="null">No category</option>
+            @for (c of filteredCats(); track c.id) {
+              <option [ngValue]="c.id">{{ c.logo }} {{ c.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input class="form-input" type="date" formControlName="date">
+        </div>
+
+        <!-- Note -->
+        <div class="form-group">
+          <label class="form-label">Note</label>
+          <input class="form-input" type="text" formControlName="note" placeholder="Optional note…">
+        </div>
+
+      </div>
+
+      <button class="btn btn-primary btn-full" type="submit" [disabled]="form.invalid || saving()"
+        [class.btn-income]="sheetType()==='income'">
+        @if (saving()) { <span class="spinner"></span> }
+        {{ editTarget() ? 'Update' : (sheetType() === 'income' ? 'Add income' : 'Add expense') }}
+      </button>
+    </form>
+  </div>
+}

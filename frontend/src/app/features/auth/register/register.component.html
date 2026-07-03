@@ -1,0 +1,84 @@
+<div class="auth-page">
+  <div class="auth-brand">
+    <div class="auth-logo">💰</div>
+    <h1 class="auth-title">Wise Budget</h1>
+    <p class="auth-subtitle">Take control of your finances</p>
+  </div>
+
+  <form class="auth-card card" [formGroup]="form" (ngSubmit)="submit()">
+    <h2 class="form-heading">Create account</h2>
+
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input
+        class="form-input"
+        [class.error]="username.invalid && username.touched"
+        type="text"
+        formControlName="username"
+        placeholder="Yaseen"
+        autocomplete="name">
+      @if (username.invalid && username.touched) {
+        <span class="form-error">Name must be at least 2 characters</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input
+        class="form-input"
+        [class.error]="email.invalid && email.touched"
+        type="email"
+        formControlName="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        inputmode="email">
+      @if (email.invalid && email.touched) {
+        <span class="form-error">Enter a valid email address</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input
+        class="form-input"
+        [class.error]="password.invalid && password.touched"
+        type="password"
+        formControlName="password"
+        placeholder="At least 6 characters"
+        autocomplete="new-password">
+      @if (password.invalid && password.touched) {
+        <span class="form-error">Password must be at least 6 characters</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Confirm password</label>
+      <input
+        class="form-input"
+        [class.error]="mismatch"
+        type="password"
+        formControlName="confirm"
+        placeholder="Repeat password"
+        autocomplete="new-password">
+      @if (mismatch) {
+        <span class="form-error">Passwords do not match</span>
+      }
+    </div>
+
+    @if (error()) {
+      <div class="auth-error">{{ error() }}</div>
+    }
+
+    <button class="btn btn-primary btn-full" type="submit" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner"></span> Creating account…
+      } @else {
+        Create account
+      }
+    </button>
+
+    <p class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </form>
+</div>

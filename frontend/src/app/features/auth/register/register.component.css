@@ -1,0 +1,21 @@
+/* Shares the same styles as login */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  background: linear-gradient(160deg, var(--color-primary-bg) 0%, var(--color-bg) 50%);
+}
+.auth-brand { text-align: center; margin-bottom: 28px; }
+.auth-logo  { font-size: 3rem; margin-bottom: 8px; }
+.auth-title { font-size: var(--text-2xl); font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px; }
+.auth-subtitle { font-size: var(--text-sm); color: var(--color-text-2); }
+.auth-card  { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 18px; }
+.form-heading { font-size: var(--text-xl); font-weight: 700; }
+.auth-error { background: var(--color-expense-bg); color: var(--color-expense); padding: 10px 14px; border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 500; }
+.btn[disabled] { opacity: .6; pointer-events: none; }
+.btn .spinner { width: 16px; height: 16px; border-width: 2px; }
+.auth-footer { text-align: center; font-size: var(--text-sm); color: var(--color-text-2); }
+.auth-footer a { color: var(--color-primary); font-weight: 600; text-decoration: none; }

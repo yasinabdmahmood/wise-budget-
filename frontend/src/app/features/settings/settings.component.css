@@ -1,0 +1,128 @@
+/* ── Page layout ─────────────────────────────────── */
+.page {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: calc(100dvh - 56px - 68px);
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+/* ── Section cards ───────────────────────────────── */
+.section-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+.section-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+}
+
+/* ── Profile row ─────────────────────────────────── */
+.avatar-row { display: flex; align-items: center; gap: var(--space-4); }
+.avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.user-name { font-size: var(--text-base); font-weight: 700; color: var(--color-text); margin: 0; }
+.user-email { font-size: var(--text-sm); color: var(--color-text-secondary); margin: 2px 0 0; }
+
+/* ── Fields ──────────────────────────────────────── */
+.field { margin-bottom: var(--space-4); }
+.field-label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.field-err { font-size: var(--text-xs); color: var(--color-expense); margin-top: var(--space-1); display: block; }
+
+/* ── Feedback bars ───────────────────────────────── */
+.success-bar {
+  background: #d1fae5;
+  color: #065f46;
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+.error-bar {
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+/* ── Buttons ─────────────────────────────────────── */
+.full-btn { width: 100%; }
+.btn-ghost {
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+.btn-danger {
+  background: var(--color-expense);
+  color: #fff;
+  border: none;
+}
+.btn-danger:active { opacity: .85; }
+
+/* ── App info ────────────────────────────────────── */
+.info-card { padding: var(--space-4) var(--space-5); }
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+}
+.info-row + .info-row { border-top: 1px solid var(--color-border); }
+.info-label { font-size: var(--text-sm); color: var(--color-text-secondary); }
+.info-val { font-size: var(--text-sm); font-weight: 600; color: var(--color-text); }
+
+/* ── Danger card ─────────────────────────────────── */
+.danger-card { padding: var(--space-4) var(--space-5); }
+
+/* ── Logout confirm dialog ───────────────────────── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; }
+.confirm-dialog {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  width: min(320px, 88vw);
+  z-index: 101;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+.confirm-title { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-2); }
+.confirm-body { font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+.confirm-actions { display: flex; gap: var(--space-3); }
+.confirm-actions .btn { flex: 1; }
+
+/* ── Spinner ─────────────────────────────────────── */
+.spinner-sm {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

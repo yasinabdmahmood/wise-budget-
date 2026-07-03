@@ -1,0 +1,59 @@
+.acc-page { display: flex; flex-direction: column; gap: 20px; padding-bottom: 80px; }
+
+.error-banner { background: var(--color-expense-bg); color: var(--color-expense); padding: 10px 14px; border-radius: var(--radius-sm); font-size: var(--text-sm); }
+.loading-center { display: flex; justify-content: center; padding: 40px; }
+
+/* Net worth hero */
+.net-card {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--radius-lg); padding: 24px 20px; text-align: center;
+  color: #fff; box-shadow: var(--shadow-md);
+}
+.net-label  { font-size: var(--text-sm); opacity: .85; margin-bottom: 6px; }
+.net-amount { font-size: var(--text-3xl); font-weight: 800; letter-spacing: -.02em; }
+.net-amount.negative { color: #fca5a5; }
+
+/* Section */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.section-title { font-size: var(--text-base); font-weight: 700; }
+
+/* Account cards */
+.acc-list { display: flex; flex-direction: column; gap: 10px; }
+.acc-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.acc-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.acc-icon { font-size: 1.75rem; flex-shrink: 0; }
+.acc-name { font-size: var(--text-base); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acc-meta { font-size: var(--text-xs); color: var(--color-text-2); margin-top: 2px; text-transform: capitalize; }
+.acc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.acc-balance { font-size: var(--text-lg); font-weight: 700; }
+.acc-balance.negative { color: var(--color-expense); }
+.acc-actions { display: flex; gap: 4px; }
+
+/* Transfer list */
+.tr-list { padding: 0 16px; display: flex; flex-direction: column; }
+.tr-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--color-border); }
+.tr-row.no-border { border-bottom: none; }
+.tr-icon { font-size: 1.25rem; flex-shrink: 0; }
+.tr-info { flex: 1; min-width: 0; }
+.tr-name { font-size: var(--text-sm); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-sub  { font-size: var(--text-xs); color: var(--color-text-2); margin-top: 2px; }
+.tr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.tr-amount { font-size: var(--text-sm); font-weight: 700; color: var(--color-transfer); }
+
+/* Icon buttons */
+.icon-btn { background: none; border: none; font-size: 1rem; cursor: pointer; padding: 4px; border-radius: 6px; transition: background .15s; }
+.icon-btn:hover { background: var(--color-surface-2); }
+.icon-btn.danger:hover { background: var(--color-expense-bg); }
+
+/* FAB group */
+.fab-group { position: fixed; right: 20px; bottom: calc(var(--nav-height) + var(--safe-bottom) + 12px); display: flex; flex-direction: column; gap: 10px; z-index: 50; }
+.fab { position: static; width: 52px; height: 52px; font-size: 1.5rem; }
+.fab-add      { background: var(--color-primary); }
+.fab-transfer { background: var(--color-transfer); }
+
+/* Sheet */
+.sheet-title { font-size: var(--text-lg); font-weight: 700; margin-bottom: 20px; }
+.sheet-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+.amount-input { font-size: var(--text-2xl); font-weight: 700; text-align: center; }
+.btn[disabled] { opacity: .6; pointer-events: none; }
+.btn .spinner { width: 16px; height: 16px; border-width: 2px; }
