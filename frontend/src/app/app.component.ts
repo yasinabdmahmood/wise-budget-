@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AppUpdateService } from './core/services/app-update.service';
 
 @Component({
   selector: 'wb-root',
@@ -7,4 +8,7 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
   template: `<router-outlet />`
 })
-export class AppComponent {}
+export class AppComponent {
+  // Injecting starts the update watcher
+  constructor(private _update: AppUpdateService) {}
+}
