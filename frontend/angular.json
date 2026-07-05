@@ -39,8 +39,7 @@
                 { "type": "anyComponentStyle", "maximumWarning": "6kb", "maximumError": "10kb" }
               ],
               "outputHashing": "all",
-              "serviceWorker": true,
-              "ngswConfigPath": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
