@@ -32,6 +32,6 @@ export class CacheService {
 
   async getCategories(type?: 'income' | 'expense'): Promise<CachedCategory[]> {
     const all = await this.db.cachedCategories.toArray();
-    return type ? all.filter(c => c.type === type) : all;
+    return type ? all.filter((c: CachedCategory) => c.type === type) : all;
   }
 }

@@ -70,7 +70,6 @@
   margin-top: var(--header-height);
   padding: 16px 16px calc(var(--nav-height) + var(--safe-bottom) + 16px);
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* ── Bottom navigation ────────────────────────── */
