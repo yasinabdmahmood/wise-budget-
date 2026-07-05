@@ -27,6 +27,7 @@ export const routes: Routes = [
       { path: 'accounts',     loadComponent: () => import('./features/accounts/accounts.component').then(m => m.AccountsComponent) },
       { path: 'categories',   loadComponent: () => import('./features/categories/categories.component').then(m => m.CategoriesComponent) },
       { path: 'settings',     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent) },
+      { path: 'pending',      loadComponent: () => import('./features/pending/pending.component').then(m => m.PendingComponent) },
     ]
   },
 

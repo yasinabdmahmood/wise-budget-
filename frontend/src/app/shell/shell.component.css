@@ -132,3 +132,58 @@
   letter-spacing: 0.01em;
   text-transform: uppercase;
 }
+
+/* ── Status banners ───────────────────────────── */
+.status-banner {
+  position: fixed;
+  left: 0; right: 0;
+  top: var(--header-height);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  z-index: 39;
+  cursor: default;
+}
+
+.offline-banner {
+  background: #f97316;
+  color: #fff;
+  top: var(--header-height);
+}
+
+.pending-banner {
+  background: #f59e0b;
+  color: #1c1917;
+  cursor: pointer;
+  top: var(--header-height);
+}
+
+/* When both banners are visible, pending sits below offline */
+.has-both .pending-banner {
+  top: calc(var(--header-height) + 36px);
+}
+
+.banner-icon { font-size: 14px; flex-shrink: 0; }
+.banner-text { flex: 1; }
+.banner-action {
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── Adjust page-content top margin for banners ── */
+.app-shell.is-offline .page-content {
+  margin-top: calc(var(--header-height) + 36px);
+}
+.app-shell.has-pending .page-content {
+  margin-top: calc(var(--header-height) + 36px);
+}
+.app-shell.has-both .page-content {
+  margin-top: calc(var(--header-height) + 72px);
+}

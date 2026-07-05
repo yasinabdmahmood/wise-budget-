@@ -1,4 +1,7 @@
-<div class="app-shell">
+<div class="app-shell"
+     [class.is-offline]="!network.isOnline()"
+     [class.has-pending]="sync.hasPending()"
+     [class.has-both]="!network.isOnline() && sync.hasPending()">
 
   <!-- ── Top header ───────────────────────────── -->
   <header class="top-bar">
@@ -13,6 +16,25 @@
     </div>
   </header>
 
+  <!-- ── Offline banner ───────────────────────── -->
+  @if (!network.isOnline()) {
+    <div class="status-banner offline-banner">
+      <span class="banner-icon">📡</span>
+      <span class="banner-text">You are offline — new transactions will be queued</span>
+    </div>
+  }
+
+  <!-- ── Pending sync banner ──────────────────── -->
+  @if (sync.hasPending()) {
+    <div class="status-banner pending-banner" (click)="goToPending()">
+      <span class="banner-icon">🕐</span>
+      <span class="banner-text">
+        {{ sync.pendingCount() }} transaction{{ sync.pendingCount() === 1 ? '' : 's' }} waiting to sync
+      </span>
+      <span class="banner-action">Review →</span>
+    </div>
+  }
+
   <!-- ── Page content ─────────────────────────── -->
   <main class="page-content">
     <router-outlet />
@@ -21,11 +43,10 @@
   <!-- ── Bottom navigation ────────────────────── -->
   <nav class="bottom-nav">
     @for (item of navItems; track item.path) {
-      <a
-        class="nav-item"
-        [routerLink]="item.path"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }">
+      <a class="nav-item"
+         [routerLink]="item.path"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: false }">
         <span class="nav-icon">{{ item.icon }}</span>
         <span class="nav-label">{{ item.label }}</span>
       </a>
