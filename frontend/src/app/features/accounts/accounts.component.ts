@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ApiService } from '../../core/services/api.service';
 import { NetworkService } from '../../core/services/network.service';
 import { CacheService } from '../../core/services/cache.service';
+import { OfflineSyncService } from '../../core/services/offline-sync.service';
 import { Account, Transfer } from '../../core/models';
 
 type Sheet = 'account' | 'transfer' | null;
@@ -39,7 +40,8 @@ export class AccountsComponent implements OnInit {
     private api: ApiService,
     private fb: FormBuilder,
     readonly network: NetworkService,
-    private cache: CacheService
+    private cache: CacheService,
+    private offlineSync: OfflineSyncService
   ) {}
 
   ngOnInit() {
@@ -131,10 +133,27 @@ export class AccountsComponent implements OnInit {
     this.sheet.set('transfer');
   }
 
-  saveTransfer() {
+  async saveTransfer() {
     if (this.transferForm.invalid || this.saving()) return;
     this.saving.set(true);
     const val = { ...this.transferForm.value, amount: Number(this.transferForm.value.amount) };
+
+    // ── Offline: queue it ─────────────────────────────
+    if (!this.network.isOnline()) {
+      await this.offlineSync.enqueue({
+        type:                   'transfer',
+        source_account_id:      val.source_account_id,
+        destination_account_id: val.destination_account_id,
+        amount:                 val.amount,
+        note:                   val.note || undefined,
+        date:                   val.date
+      });
+      this.sheet.set(null);
+      this.saving.set(false);
+      return;
+    }
+
+    // ── Online: normal API call ───────────────────────
     this.api.createTransfer(val).subscribe({
       next: () => { this.sheet.set(null); this.load(); this.saving.set(false); },
       error: (e) => { this.error.set(e.error?.error || 'Transfer failed'); this.saving.set(false); }

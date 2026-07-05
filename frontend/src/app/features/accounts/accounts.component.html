@@ -168,7 +168,7 @@
 
       <button class="btn btn-primary btn-full" type="submit" [disabled]="transferForm.invalid || saving()">
         @if (saving()) { <span class="spinner"></span> }
-        Transfer
+        {{ network.isOnline() ? 'Transfer' : '📥 Queue Offline' }}
       </button>
     </form>
   </div>

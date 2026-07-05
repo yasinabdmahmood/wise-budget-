@@ -1,0 +1,182 @@
+<div class="pending-page">
+
+  <!-- ── Empty state ──────────────────────────────── -->
+  @if (sync.pendingItems().length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon">✅</span>
+      <p class="empty-title">All caught up!</p>
+      <p class="empty-sub">No transactions waiting to sync.</p>
+    </div>
+  } @else {
+
+    <!-- ── Header row ────────────────────────────── -->
+    <div class="pending-header">
+      <p class="pending-count">{{ sync.pendingCount() }} item(s) waiting</p>
+      @if (network.isOnline()) {
+        <button class="btn btn-primary btn-sm" (click)="approveAll()">
+          Approve all
+        </button>
+      }
+    </div>
+
+    <!-- ── Offline notice ────────────────────────── -->
+    @if (!network.isOnline()) {
+      <div class="notice-banner">
+        📡 You are offline — connect to approve items
+      </div>
+    }
+
+    <!-- ── Item list ──────────────────────────────── -->
+    <div class="item-list">
+      @for (item of sync.pendingItems(); track item.id) {
+        <div class="item-card card" [class.item-error]="item.status === 'error'">
+
+          <!-- Status badge -->
+          <div class="item-badge-row">
+            <span class="type-chip" [class.chip-income]="item.transactionType === 'income'"
+                                    [class.chip-expense]="item.transactionType === 'expense'"
+                                    [class.chip-transfer]="item.type === 'transfer'">
+              @if (item.type === 'transfer') { ↔ Transfer }
+              @else if (item.transactionType === 'income') { ↑ Income }
+              @else { ↓ Expense }
+            </span>
+            @if (item.status === 'error') {
+              <span class="status-badge badge-error">⚠ Failed</span>
+            } @else {
+              <span class="status-badge badge-pending">🕐 Pending</span>
+            }
+          </div>
+
+          <!-- Main info -->
+          <div class="item-body">
+            <p class="item-amount" [class.amount-income]="item.transactionType === 'income'"
+                                   [class.amount-transfer]="item.type === 'transfer'">
+              {{ fmt(item.amount) }}
+            </p>
+            <div class="item-meta">
+              @if (item.type === 'transaction') {
+                <span>{{ accountName(item.account_id) }}</span>
+                @if (item.category_id) {
+                  <span class="meta-sep">·</span>
+                  <span>{{ categoryName(item.category_id) }}</span>
+                }
+              } @else {
+                <span>{{ accountName(item.source_account_id) }}</span>
+                <span class="meta-arrow">→</span>
+                <span>{{ accountName(item.destination_account_id) }}</span>
+              }
+            </div>
+            <p class="item-date">{{ fmtDate(item.date) }}</p>
+            @if (item.note) { <p class="item-note">{{ item.note }}</p> }
+            <p class="item-queued">Queued {{ fmtCreated(item.createdAt) }}</p>
+          </div>
+
+          <!-- Error message -->
+          @if (item.status === 'error' && item.errorMessage) {
+            <div class="error-msg">{{ item.errorMessage }}</div>
+          }
+
+          <!-- Action buttons -->
+          <div class="item-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(item)">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="reject(item)">✕ Discard</button>
+            <button class="btn btn-primary btn-sm" [disabled]="!network.isOnline() || isApproving(item)"
+              (click)="approve(item)">
+              @if (isApproving(item)) { <span class="spinner-sm"></span> } @else { ✓ }
+              Approve
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+
+  }
+
+</div>
+
+<!-- ── Edit sheet ──────────────────────────────────── -->
+@if (editTarget()) {
+  <div class="overlay" (click)="closeEdit()"></div>
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="sheet-title">
+      @if (editTarget()!.type === 'transfer') { Edit transfer }
+      @else { Edit {{ editTarget()!.transactionType }} }
+    </h3>
+
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
+      <div class="sheet-fields">
+
+        <!-- ── Transaction fields ── -->
+        @if (editTarget()!.type === 'transaction') {
+          <div class="form-group">
+            <label class="form-label">Account *</label>
+            <select class="form-input form-select" formControlName="account_id">
+              <option [ngValue]="null" disabled>Select account</option>
+              @for (a of accounts(); track a.id) {
+                <option [ngValue]="a.id">{{ a.name }} ({{ a.currency }})</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-input form-select" formControlName="category_id">
+              <option [ngValue]="null">— None —</option>
+              @for (c of filteredCats(); track c.id) {
+                <option [ngValue]="c.id">{{ c.logo }} {{ c.name }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- ── Transfer fields ── -->
+        @if (editTarget()!.type === 'transfer') {
+          <div class="form-group">
+            <label class="form-label">From *</label>
+            <select class="form-input form-select" formControlName="source_account_id">
+              <option [ngValue]="null" disabled>Select source</option>
+              @for (a of accounts(); track a.id) {
+                <option [ngValue]="a.id">{{ a.name }} ({{ a.currency }})</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">To *</label>
+            <select class="form-input form-select" formControlName="destination_account_id">
+              <option [ngValue]="null" disabled>Select destination</option>
+              @for (a of otherAccounts(editForm.get('source_account_id')!.value); track a.id) {
+                <option [ngValue]="a.id">{{ a.name }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- ── Shared fields ── -->
+        <div class="form-group">
+          <label class="form-label">Amount *</label>
+          <input class="form-input amount-input" type="number" formControlName="amount"
+            placeholder="0" inputmode="decimal" min="0.01" step="any">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input class="form-input" type="date" formControlName="date">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Note</label>
+          <input class="form-input" type="text" formControlName="note" placeholder="Optional…">
+        </div>
+
+      </div>
+
+      <button class="btn btn-primary btn-full" type="submit" [disabled]="editForm.invalid || saving()">
+        @if (saving()) { <span class="spinner"></span> }
+        Save changes
+      </button>
+    </form>
+  </div>
+}

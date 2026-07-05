@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ApiService } from '../../core/services/api.service';
 import { NetworkService } from '../../core/services/network.service';
 import { CacheService } from '../../core/services/cache.service';
+import { OfflineSyncService } from '../../core/services/offline-sync.service';
 import { Transaction, Account, Category } from '../../core/models';
 
 @Component({
@@ -46,7 +47,8 @@ export class TransactionsComponent implements OnInit {
     private api: ApiService,
     private fb: FormBuilder,
     readonly network: NetworkService,
-    private cache: CacheService
+    private cache: CacheService,
+    private offlineSync: OfflineSyncService
   ) {}
 
   ngOnInit() {
@@ -144,11 +146,34 @@ export class TransactionsComponent implements OnInit {
 
   closeSheet() { this.showSheet.set(false); }
 
-  submit() {
+  async submit() {
     if (this.form.invalid || this.saving()) return;
     this.saving.set(true);
     const val = { ...this.form.value, type: this.sheetType(), amount: Number(this.form.value.amount) };
 
+    // ── Offline: queue it instead of calling the API ──
+    if (!this.network.isOnline() && !this.editTarget()) {
+      await this.offlineSync.enqueue({
+        type:            'transaction',
+        transactionType: this.sheetType(),
+        account_id:      val.account_id,
+        category_id:     val.category_id,
+        amount:          val.amount,
+        note:            val.note || undefined,
+        date:            val.date
+      });
+      this.closeSheet();
+      this.saving.set(false);
+      return;
+    }
+
+    if (!this.network.isOnline() && this.editTarget()) {
+      this.error.set('Cannot edit transactions while offline.');
+      this.saving.set(false);
+      return;
+    }
+
+    // ── Online: normal API call ───────────────────────
     const req = this.editTarget()
       ? this.api.updateTransaction(this.editTarget()!.id, val)
       : this.api.createTransaction(val);

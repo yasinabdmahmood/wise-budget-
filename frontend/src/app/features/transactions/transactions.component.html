@@ -117,7 +117,7 @@
       <button class="btn btn-primary btn-full" type="submit" [disabled]="form.invalid || saving()"
         [class.btn-income]="sheetType()==='income'">
         @if (saving()) { <span class="spinner"></span> }
-        {{ editTarget() ? 'Update' : (sheetType() === 'income' ? 'Add income' : 'Add expense') }}
+        {{ editTarget() ? 'Update' : (network.isOnline() ? (sheetType() === 'income' ? 'Add income' : 'Add expense') : '📥 Queue Offline') }}
       </button>
     </form>
   </div>
