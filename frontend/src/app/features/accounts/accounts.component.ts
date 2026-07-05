@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import { NetworkService } from '../../core/services/network.service';
+import { CacheService } from '../../core/services/cache.service';
 import { Account, Transfer } from '../../core/models';
 
 type Sheet = 'account' | 'transfer' | null;
@@ -33,7 +35,12 @@ export class AccountsComponent implements OnInit {
 
   totalBalance = signal(0);
 
-  constructor(private api: ApiService, private fb: FormBuilder) {}
+  constructor(
+    private api: ApiService,
+    private fb: FormBuilder,
+    readonly network: NetworkService,
+    private cache: CacheService
+  ) {}
 
   ngOnInit() {
     this.buildForms();
@@ -56,11 +63,17 @@ export class AccountsComponent implements OnInit {
   }
 
   load() {
+    if (!this.network.isOnline()) {
+      this.loadFromCache();
+      return;
+    }
     this.loading.set(true);
+    this.error.set('');
     this.api.getAccounts().subscribe({
       next: r => {
         this.accounts.set(r.accounts);
         this.totalBalance.set(r.accounts.reduce((s, a) => s + a.balance, 0));
+        this.cache.saveAccounts(r.accounts);   // keep cache fresh
         this.loading.set(false);
       },
       error: () => { this.error.set('Failed to load accounts'); this.loading.set(false); }
@@ -68,6 +81,14 @@ export class AccountsComponent implements OnInit {
     this.api.getTransfers({ }).subscribe({
       next: r => this.transfers.set(r.transfers.slice(0, 10))
     });
+  }
+
+  private async loadFromCache() {
+    const accs = await this.cache.getAccounts();
+    this.accounts.set(accs as any[]);
+    this.totalBalance.set(accs.reduce((s, a) => s + (a.balance ?? 0), 0));
+    this.error.set('Offline — showing last cached balances. Transfers unavailable.');
+    this.loading.set(false);
   }
 
   // ── Account sheet ─────────────────────────────

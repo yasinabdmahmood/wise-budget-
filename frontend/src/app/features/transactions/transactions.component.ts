@@ -2,6 +2,8 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import { NetworkService } from '../../core/services/network.service';
+import { CacheService } from '../../core/services/cache.service';
 import { Transaction, Account, Category } from '../../core/models';
 
 @Component({
@@ -40,7 +42,12 @@ export class TransactionsComponent implements OnInit {
 
   hasMore = computed(() => this.offset() + this.LIMIT < this.total());
 
-  constructor(private api: ApiService, private fb: FormBuilder) {}
+  constructor(
+    private api: ApiService,
+    private fb: FormBuilder,
+    readonly network: NetworkService,
+    private cache: CacheService
+  ) {}
 
   ngOnInit() {
     this.buildForm();
@@ -59,7 +66,16 @@ export class TransactionsComponent implements OnInit {
   }
 
   loadData() {
+    this.loadDropdowns();
+
+    if (!this.network.isOnline()) {
+      this.error.set('You are offline — showing cached data is not available. Add transactions to the queue using the + buttons.');
+      this.loading.set(false);
+      return;
+    }
+
     this.loading.set(true);
+    this.error.set('');
     const type = this.filterType() === 'all' ? undefined : this.filterType();
     this.api.getTransactions({ type, limit: this.LIMIT, offset: this.offset() }).subscribe({
       next: r => {
@@ -70,10 +86,26 @@ export class TransactionsComponent implements OnInit {
       },
       error: () => { this.error.set('Failed to load transactions'); this.loading.set(false); }
     });
-    // Load accounts & categories once
-    if (this.accounts().length === 0) {
-      this.api.getAccounts().subscribe(r => this.accounts.set(r.accounts));
-      this.api.getCategories(undefined, true).subscribe(r => this.categories.set(r.categories));
+  }
+
+  /** Load accounts + categories: from API when online (and save to cache), from cache when offline */
+  private async loadDropdowns() {
+    if (this.network.isOnline()) {
+      this.api.getAccounts().subscribe(r => {
+        this.accounts.set(r.accounts);
+        this.cache.saveAccounts(r.accounts);
+      });
+      this.api.getCategories(undefined, true).subscribe(r => {
+        this.categories.set(r.categories);
+        this.cache.saveCategories(r.categories);
+      });
+    } else {
+      const [accs, cats] = await Promise.all([
+        this.cache.getAccounts(),
+        this.cache.getCategories()
+      ]);
+      this.accounts.set(accs as any[]);
+      this.categories.set(cats as any[]);
     }
   }
 
