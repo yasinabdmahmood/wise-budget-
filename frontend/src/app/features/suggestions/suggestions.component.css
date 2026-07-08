@@ -1,0 +1,256 @@
+/* ── Directory view ───────────────────────────── */
+.dir-view {
+  padding-bottom: 80px; /* space for FAB */
+}
+
+/* ── Breadcrumb ───────────────────────────────── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 0 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.breadcrumb::-webkit-scrollbar { display: none; }
+
+.crumb {
+  background: none;
+  border: none;
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.crumb:last-child { color: var(--color-text); cursor: default; }
+.crumb:active     { background: var(--color-primary-bg); }
+
+.crumb-sep {
+  color: var(--color-text-3);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── Empty state ──────────────────────────────── */
+.empty-icon { font-size: 3rem; }
+.empty-text {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-2);
+  margin: 0;
+}
+.empty-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+  margin: 4px 0 0;
+}
+
+/* ── Item list ────────────────────────────────── */
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Item row ─────────────────────────────────── */
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item-row:active { background: var(--color-surface-2); }
+
+.item-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.item-date {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  margin: 2px 0 0;
+}
+
+.item-chevron {
+  color: var(--color-text-3);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ── Item action buttons ──────────────────────── */
+.item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.item-action-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item-action-btn:active { opacity: 1; }
+.item-action-btn.danger:active { background: var(--color-expense-bg); }
+
+/* ── FAB ──────────────────────────────────────── */
+/* Uses global .fab styles; overriding position to work within page */
+
+/* ── Create sheet ─────────────────────────────── */
+.type-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.type-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.type-btn-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+/* ── Create error ─────────────────────────────── */
+.create-error {
+  font-size: var(--text-sm);
+  color: var(--color-expense);
+  margin: 8px 0 0;
+}
+
+/* ── File editor ──────────────────────────────── */
+.editor-view {
+  position: fixed;
+  inset: 0;
+  top: var(--header-height);
+  bottom: calc(var(--nav-height) + var(--safe-bottom));
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  background: var(--color-surface);
+}
+
+.editor-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.back-arrow {
+  font-size: 1.3rem;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.editor-title {
+  flex: 1;
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editor-save-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 7px 16px;
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.editor-save-btn.saved {
+  background: var(--color-income);
+}
+
+.editor-save-btn:disabled { opacity: .6; cursor: default; }
+
+.file-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--color-text);
+  background: var(--color-surface);
+  -webkit-overflow-scrolling: touch;
+}

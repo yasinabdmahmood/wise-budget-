@@ -1,0 +1,167 @@
+<!-- ════════════════════════════════════════════
+     FILE EDITOR VIEW
+     ════════════════════════════════════════════ -->
+@if (openFile()) {
+  <div class="editor-view">
+
+    <!-- Editor toolbar -->
+    <div class="editor-toolbar">
+      <button class="editor-back" (click)="closeEditor()">
+        <span class="back-arrow">←</span>
+      </button>
+      <span class="editor-title">{{ openFile()!.name }}</span>
+      <button class="editor-save-btn"
+              [class.saved]="saved()"
+              [disabled]="saving()"
+              (click)="saveFile()">
+        @if (saving()) { … }
+        @else if (saved()) { ✓ Saved }
+        @else { Save }
+      </button>
+    </div>
+
+    <!-- Text area -->
+    <textarea
+      class="file-textarea"
+      [value]="editContent()"
+      (input)="onContentInput($event)"
+      placeholder="Start writing…"
+      autocomplete="off"
+      autocorrect="on"
+      spellcheck="true">
+    </textarea>
+
+  </div>
+}
+
+<!-- ════════════════════════════════════════════
+     DIRECTORY VIEW
+     ════════════════════════════════════════════ -->
+@if (!openFile()) {
+  <div class="dir-view">
+
+    <!-- Breadcrumb trail -->
+    <div class="breadcrumb">
+      <button class="crumb" (click)="navigateTo(-1)">
+        🗂️ Suggestions
+      </button>
+      @for (crumb of path(); track crumb.id; let i = $index) {
+        <span class="crumb-sep">›</span>
+        <button class="crumb" (click)="navigateTo(i)">{{ crumb.name }}</button>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="loading-center"><div class="spinner"></div></div>
+    } @else if (items().length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">📂</span>
+        <p class="empty-text">This folder is empty</p>
+        <p class="empty-sub">Tap + to add a file or folder</p>
+      </div>
+    } @else {
+      <div class="item-list">
+        @for (item of items(); track item.id) {
+          <div class="item-row"
+               (click)="item.type === 'folder' ? navigateInto(item) : openEditor(item)">
+
+            <span class="item-icon">{{ item.type === 'folder' ? '📁' : '📄' }}</span>
+
+            <div class="item-info">
+              <p class="item-name">{{ item.name }}</p>
+              <p class="item-date">{{ fmtDate(item.updatedAt) }}</p>
+            </div>
+
+            @if (item.type === 'folder') {
+              <span class="item-chevron">›</span>
+            }
+
+            <!-- Actions -->
+            <div class="item-actions">
+              <button class="item-action-btn" title="Rename"
+                      (click)="openRename(item, $event)">✏️</button>
+              <button class="item-action-btn danger" title="Delete"
+                      (click)="deleteItem(item, $event)">🗑️</button>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" (click)="openCreate()">+</button>
+}
+
+<!-- ════════════════════════════════════════════
+     CREATE SHEET
+     ════════════════════════════════════════════ -->
+@if (showCreate()) {
+  <div class="overlay" (click)="closeCreate()"></div>
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="sheet-title">New item</h3>
+
+    <!-- Type toggle -->
+    <div class="type-toggle">
+      <button class="type-btn" [class.type-btn-active]="createType() === 'file'"
+              (click)="createType.set('file')">
+        📄 File
+      </button>
+      <button class="type-btn" [class.type-btn-active]="createType() === 'folder'"
+              (click)="createType.set('folder')">
+        📁 Folder
+      </button>
+    </div>
+
+    <!-- Name input -->
+    <div class="form-group" style="margin-top:16px">
+      <label class="form-label">Name *</label>
+      <input class="form-input"
+             type="text"
+             [value]="createName()"
+             (input)="onCreateInput($event)"
+             placeholder="e.g. Ideas, Meeting Notes…"
+             autocomplete="off">
+    </div>
+
+    @if (createError()) {
+      <p class="create-error">{{ createError() }}</p>
+    }
+
+    <button class="btn btn-primary btn-full"
+            style="margin-top:20px"
+            [disabled]="!createName().trim() || creating()"
+            (click)="createItem()">
+      @if (creating()) { <span class="spinner"></span> }
+      Create {{ createType() === 'folder' ? 'folder' : 'file' }}
+    </button>
+  </div>
+}
+
+<!-- ════════════════════════════════════════════
+     RENAME SHEET
+     ════════════════════════════════════════════ -->
+@if (renameTarget()) {
+  <div class="overlay" (click)="closeRename()"></div>
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="sheet-title">Rename</h3>
+    <div class="form-group">
+      <label class="form-label">New name *</label>
+      <input class="form-input"
+             type="text"
+             [value]="renameName()"
+             (input)="onRenameInput($event)"
+             autocomplete="off">
+    </div>
+    <button class="btn btn-primary btn-full"
+            style="margin-top:20px"
+            [disabled]="!renameName().trim()"
+            (click)="confirmRename()">
+      Rename
+    </button>
+  </div>
+}

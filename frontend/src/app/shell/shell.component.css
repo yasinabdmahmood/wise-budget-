@@ -26,10 +26,36 @@
   padding: 0 16px;
 }
 
-.top-bar-logo {
-  font-size: 1.35rem;
+/* ── Hamburger button ─────────────────────────── */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
   flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  -webkit-tap-highlight-color: transparent;
 }
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-text);
+  transition: background .15s;
+}
+
+.hamburger span:nth-child(1) { width: 22px; }
+.hamburger span:nth-child(2) { width: 16px; }
+.hamburger span:nth-child(3) { width: 20px; }
+
+.hamburger:active { background: var(--color-surface-2); }
 
 .top-bar-title {
   font-size: var(--text-lg);
@@ -185,4 +211,140 @@
 }
 .app-shell.has-both .page-content {
   margin-top: calc(var(--header-height) + 72px);
+}
+
+/* ── Sidebar overlay ──────────────────────────── */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  animation: fadeIn .2s ease;
+}
+
+/* ── Sidebar drawer ───────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 82%;
+  max-width: 300px;
+  background: var(--color-surface);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+  padding-bottom: calc(var(--safe-bottom) + 16px);
+  box-shadow: 4px 0 24px rgba(0,0,0,.15);
+  animation: slideInLeft .25s ease;
+  overflow-y: auto;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+}
+
+/* ── User section ─────────────────────────────── */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 20px 20px;
+}
+
+.sidebar-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-username {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.sidebar-email {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px 0 0;
+}
+
+/* ── Divider ──────────────────────────────────── */
+.sidebar-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+/* ── Nav items ────────────────────────────────── */
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  text-decoration: none;
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font);
+}
+
+.sidebar-item:active,
+.sidebar-item:hover {
+  background: var(--color-bg);
+}
+
+.sidebar-item-active {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.sidebar-item-icon {
+  font-size: 1.3rem;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-item-label {
+  flex: 1;
+}
+
+/* ── Logout ───────────────────────────────────── */
+.sidebar-logout {
+  margin-top: auto;
+  color: var(--color-expense);
 }

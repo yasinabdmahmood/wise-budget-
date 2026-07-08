@@ -36,11 +36,22 @@ export interface CachedCategory {
   user_id: number | null;
 }
 
+export interface SuggestionItem {
+  id?: number;
+  name: string;
+  type: 'folder' | 'file';
+  parent_id: number | null;   // null = root
+  content: string;             // text body (empty for folders)
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OfflineDbService extends Dexie {
   pendingItems!: Table<PendingItem, number>;
   cachedAccounts!: Table<CachedAccount, number>;
   cachedCategories!: Table<CachedCategory, number>;
+  suggestionItems!: Table<SuggestionItem, number>;
 
   constructor() {
     super('WiseBudgetOffline');
@@ -48,6 +59,10 @@ export class OfflineDbService extends Dexie {
       pendingItems:     '++id, type, status, createdAt',
       cachedAccounts:   'id',
       cachedCategories: 'id, type, parent_id'
+    });
+    // Version 2 adds the suggestions file-system table
+    this.version(2).stores({
+      suggestionItems: '++id, type, parent_id, name'
     });
   }
 }

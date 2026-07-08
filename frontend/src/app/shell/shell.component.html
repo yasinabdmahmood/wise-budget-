@@ -6,12 +6,12 @@
   <!-- ── Top header ───────────────────────────── -->
   <header class="top-bar">
     <div class="top-bar-inner">
-      <span class="top-bar-logo">💰</span>
+      <button class="hamburger" (click)="openSidebar()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
       <h1 class="top-bar-title">{{ pageTitle() }}</h1>
       <div class="top-bar-actions">
-        <div class="avatar" [title]="username">
-          {{ username.charAt(0).toUpperCase() }}
-        </div>
+        <div class="avatar" [title]="username">{{ userInitial }}</div>
       </div>
     </div>
   </header>
@@ -54,3 +54,43 @@
   </nav>
 
 </div>
+
+<!-- ── Sidebar overlay ──────────────────────────── -->
+@if (sidebarOpen()) {
+  <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+
+  <aside class="sidebar">
+
+    <!-- User section -->
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">{{ userInitial }}</div>
+      <div class="sidebar-user-info">
+        <p class="sidebar-username">{{ username }}</p>
+        <p class="sidebar-email">{{ userEmail }}</p>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Menu items -->
+    <nav class="sidebar-nav">
+      @for (item of sidebarItems; track item.path) {
+        <a class="sidebar-item"
+           [routerLink]="item.path"
+           routerLinkActive="sidebar-item-active">
+          <span class="sidebar-item-icon">{{ item.icon }}</span>
+          <span class="sidebar-item-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Logout -->
+    <button class="sidebar-item sidebar-logout" (click)="logout()">
+      <span class="sidebar-item-icon">🚪</span>
+      <span class="sidebar-item-label">Log out</span>
+    </button>
+
+  </aside>
+}
